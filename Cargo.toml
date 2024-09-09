@@ -2,19 +2,19 @@
 name = "win7-notifications"
 version = "0.4.5"
 description = "Send Windows 10 styled notifications on Windows 7."
-authors = ["Tauri Programme within The Commons Conservancy"]
+authors = [ "Tauri Programme within The Commons Conservancy" ]
 edition = "2021"
 rust-version = "1.56"
 license = "Apache-2.0 OR MIT"
 readme = "README.md"
-repository = "HTTPS://GitHub.Com/tauri-apps/win7-notifications"
+repository = "https://github.com/tauri-apps/win7-notifications"
 documentation = "https://docs.rs/win7-notifications"
-keywords = ["notifications", "win7", "windows", "windows7"]
-categories = ["gui"]
+keywords = [ "notifications", "win7", "windows", "windows7" ]
+categories = [ "gui" ]
 
 [package.metadata.docs.rs]
 default-target = "x86_64-pc-windows-msvc"
-targets = ["x86_64-pc-windows-msvc"]
+targets = [ "x86_64-pc-windows-msvc" ]
 
 [dependencies]
 once_cell = "1"
