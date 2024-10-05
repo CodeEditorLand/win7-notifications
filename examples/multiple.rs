@@ -24,8 +24,12 @@ fn main() {
 						.appname("App name")
 						.summary("Critical Error")
 						.body(
-							format!("Just kidding, this is just the notification example {}.", i)
-								.as_str(),
+							format!(
+								"Just kidding, this is just the notification \
+								 example {}.",
+								i
+							)
+							.as_str(),
 						)
 						.icon(icon.clone(), w, h)
 						.timeout(Timeout::Default)
@@ -37,8 +41,9 @@ fn main() {
 		.unwrap();
 }
 
-fn load_icon(path: &Path) -> (Vec<u8>, u32, u32) {
-	let image = image::open(path).expect("Failed to open icon path").into_rgba8();
+fn load_icon(path:&Path) -> (Vec<u8>, u32, u32) {
+	let image =
+		image::open(path).expect("Failed to open icon path").into_rgba8();
 	let (width, height) = image.dimensions();
 	let rgba = image.into_raw();
 	(rgba, width, height)

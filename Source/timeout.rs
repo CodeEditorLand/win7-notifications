@@ -17,7 +17,7 @@ pub enum Timeout {
 	Milliseconds(u32),
 }
 impl From<Timeout> for u64 {
-	fn from(timeout: Timeout) -> Self {
+	fn from(timeout:Timeout) -> Self {
 		match timeout {
 			Timeout::Default => 5000,
 			Timeout::Never => 0,
@@ -27,7 +27,5 @@ impl From<Timeout> for u64 {
 }
 
 impl Default for Timeout {
-	fn default() -> Self {
-		Timeout::Default
-	}
+	fn default() -> Self { Timeout::Default }
 }
