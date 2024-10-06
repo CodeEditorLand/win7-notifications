@@ -27,14 +27,10 @@ pub struct IUnknownVtbl {
 pub struct ITaskbarListVtbl {
 	pub parent:IUnknownVtbl,
 	pub HrInit:unsafe extern "system" fn(This:*mut ITaskbarList) -> HRESULT,
-	pub AddTab:
-		unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
-	pub DeleteTab:
-		unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
-	pub ActivateTab:
-		unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
-	pub SetActiveAlt:
-		unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
+	pub AddTab:unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
+	pub DeleteTab:unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
+	pub ActivateTab:unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
+	pub SetActiveAlt:unsafe extern "system" fn(This:*mut ITaskbarList, hwnd:HWND) -> HRESULT,
 }
 
 #[repr(C)]
