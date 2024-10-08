@@ -6,8 +6,8 @@
 //!
 //! # Note:
 //!
-//! This crate requires a win32 event loop to be running on the thread,
-//! otherwise the notification will close immediately, it is recommended to use it with other win32 event loop crates like [winit](https://docs.rs/winit) or just use your own win32 event loop.
+//! This crate requires a win32 event loop to be running on the thread, otherwise the notification will close immediately,
+//! it is recommended to use it with other win32 event loop crates like [winit](https://docs.rs/winit) or just use your own win32 event loop.
 //!
 //! # Examples
 //!
@@ -31,14 +31,14 @@
 //! # use win7_notifications::*;
 //! # let icon = &[];
 //! Notification::new()
-//! 	.appname("App name")
-//! 	.summary("Critical Error")
-//! 	.body("Just kidding, this is just the notification example.")
-//! 	.icon(icon.to_vec(), 32, 32)
-//! 	.timeout(Timeout::Never)
-//! 	.show()
-//! 	.unwrap();
+//!     .appname("App name")
+//!     .summary("Critical Error")
+//!     .body("Just kidding, this is just the notification example.")
+//!     .icon(icon.to_vec(), 32, 32)
+//!     .timeout(Timeout::Never)
+//!     .show().unwrap();
 //! ```
+//!
 
 mod notification;
 mod timeout;
