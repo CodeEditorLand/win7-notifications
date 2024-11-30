@@ -88,6 +88,7 @@ impl Notification {
 	/// Overwrite the appname field used for Notification.
 	pub fn appname(&mut self, appname:&str) -> &mut Notification {
 		self.appname = appname.to_owned();
+
 		self
 	}
 
@@ -97,6 +98,7 @@ impl Notification {
 	/// the `body` field.
 	pub fn summary(&mut self, summary:&str) -> &mut Notification {
 		self.summary = summary.to_owned();
+
 		self
 	}
 
@@ -107,6 +109,7 @@ impl Notification {
 	/// html markup is not supported.
 	pub fn body(&mut self, body:&str) -> &mut Notification {
 		self.body = body.to_owned();
+
 		self
 	}
 
@@ -118,26 +121,33 @@ impl Notification {
 		if rgba.len() % util::PIXEL_SIZE != 0 {
 			panic!("The length of `rgba` is not divisible by 4");
 		}
+
 		let pixel_count = rgba.len() / util::PIXEL_SIZE;
+
 		if pixel_count != (width * height) as usize {
 			panic!("`width * height` is not equal `rgba.len() / 4`");
 		} else {
 			self.icon = Some(rgba);
+
 			self.icon_width = width;
+
 			self.icon_height = height;
 		}
+
 		self
 	}
 
 	/// Set the `timeout` field.
 	pub fn timeout(&mut self, timeout:Timeout) -> &mut Notification {
 		self.timeout = timeout;
+
 		self
 	}
 
 	/// Set the `silent` field.
 	pub fn silent(&mut self, silent:bool) -> &mut Notification {
 		self.silent = silent;
+
 		self
 	}
 
@@ -150,6 +160,7 @@ impl Notification {
 			let hinstance = GetModuleHandleW(ptr::null());
 
 			let class_name = w!("win7-notifications");
+
 			let wnd_class = WNDCLASSEXW {
 				lpfnWndProc:Some(window_proc),
 				lpszClassName:class_name,
@@ -165,6 +176,7 @@ impl Notification {
 				lpszMenuName:ptr::null(),
 				hIconSm:std::ptr::null_mut(),
 			};
+
 			RegisterClassExW(&wnd_class);
 
 			if let Ok(pm) = PRIMARY_MONITOR.lock() {
@@ -198,10 +210,12 @@ impl Notification {
 				// reposition active notifications and make room for new one
 				if let Ok(mut active_notifications) = ACTIVE_NOTIFICATIONS.lock() {
 					active_notifications.push(hwnd as _);
+
 					reposition_notifications(&active_notifications, right, bottom)
 				}
 
 				ShowWindow(hwnd, SW_SHOWNA);
+
 				if !self.silent {
 					// Passing an invalid path to `PlaySoundW` will make windows play default sound.
 					// https://docs.microsoft.com/en-us/previous-versions/dd743680(v=vs.85)#remarks
@@ -209,9 +223,12 @@ impl Notification {
 				}
 
 				let timeout = self.timeout;
+
 				let hwnd = hwnd as isize;
+
 				thread::spawn(move || {
 					thread::sleep(Duration::from_millis(timeout.into()));
+
 					if timeout != Timeout::Never {
 						close_notification(hwnd);
 					};
@@ -225,6 +242,7 @@ impl Notification {
 
 unsafe fn close_notification(hwnd:isize) {
 	ShowWindow(hwnd as _, SW_HIDE);
+
 	CloseWindow(hwnd as _);
 
 	// We can NOT call `DestroyWindow` from this window
@@ -241,6 +259,7 @@ unsafe fn close_notification(hwnd:isize) {
 		// reposition notifications
 		if let Ok(pm) = PRIMARY_MONITOR.lock() {
 			let RECT { right, bottom, .. } = pm.monitorInfo.rcWork;
+
 			reposition_notifications(&active_notifications, right, bottom);
 		}
 	}
@@ -249,6 +268,7 @@ unsafe fn close_notification(hwnd:isize) {
 #[inline]
 unsafe fn reposition_notifications(notifications:&[isize], right:i32, bottom:i32) {
 	let mut i = notifications.len() as i32;
+
 	for &hwnd in notifications.iter() {
 		SetWindowPos(
 			hwnd as _,
@@ -259,6 +279,7 @@ unsafe fn reposition_notifications(notifications:&[isize], right:i32, bottom:i32
 			0,
 			SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER,
 		);
+
 		i -= 1;
 	}
 }
@@ -281,20 +302,25 @@ pub unsafe extern "system" fn window_proc(
 		WM_NCCREATE => {
 			if userdata == 0 {
 				let createstruct = &*(lparam as *const CREATESTRUCTW);
+
 				userdata = createstruct.lpCreateParams as isize;
+
 				SetWindowLongPtrW(hwnd, GWL_USERDATA, userdata);
 			}
+
 			DefWindowProcW(hwnd, msg, wparam, lparam)
 		},
 
 		WM_CREATE => {
 			let userdata = userdata as *mut WindowData;
 			(*userdata).window = hwnd;
+
 			DefWindowProcW(hwnd, msg, wparam, lparam)
 		},
 
 		WM_PAINT | WM_PRINTCLIENT => {
 			let userdata = userdata as *mut WindowData;
+
 			let notification = &(*userdata).notification;
 
 			let mut ps = PAINTSTRUCT {
@@ -305,7 +331,9 @@ pub unsafe extern "system" fn window_proc(
 				rcPaint:RECT { bottom:0, left:0, right:0, top:0 },
 				rgbReserved:[0; 32],
 			};
+
 			let hdc = BeginPaint(hwnd, &mut ps);
+
 			SetBkColor(hdc, WC);
 
 			// draw notification icon
@@ -315,45 +343,66 @@ pub unsafe extern "system" fn window_proc(
 					notification.icon_width,
 					notification.icon_height,
 				);
+
 				DrawIconEx(hdc, NM, NM, hicon, NIS, NIS, 0, std::ptr::null_mut(), DI_NORMAL);
 			}
 
 			// draw notification close button
 			let hpen =
 				CreatePen(PS_SOLID, 2, if (*userdata).mouse_hovering_close_btn { TC } else { SC });
+
 			let old_hpen = SelectObject(hdc, hpen);
+
 			MoveToEx(hdc, CLOSE_BTN_RECT.left, CLOSE_BTN_RECT.top, std::ptr::null_mut());
+
 			LineTo(hdc, CLOSE_BTN_RECT.right, CLOSE_BTN_RECT.bottom);
+
 			MoveToEx(hdc, CLOSE_BTN_RECT.right, CLOSE_BTN_RECT.top, std::ptr::null_mut());
+
 			LineTo(hdc, CLOSE_BTN_RECT.left, CLOSE_BTN_RECT.bottom);
+
 			SelectObject(hdc, old_hpen);
+
 			DeleteObject(hpen);
 
 			// draw notification app name
 			SetTextColor(hdc, TC);
+
 			let (hfont, old_hfont) = util::set_font(hdc, "Segeo UI", 15, 400);
+
 			let appname = util::encode_wide(&notification.appname);
+
 			TextOutW(hdc, NM + NIS + (NM / 2), NM, appname.as_ptr(), appname.len() as _);
+
 			SelectObject(hdc, old_hfont);
+
 			DeleteObject(hfont);
 
 			// draw notification summary (title)
 			let (hfont, old_hfont) = util::set_font(hdc, "Segeo UI", 17, 700);
+
 			let summary = util::encode_wide(&notification.summary);
+
 			TextOutW(hdc, NM, NM + NIS + (NM / 2), summary.as_ptr(), summary.len() as _);
+
 			SelectObject(hdc, old_hfont);
+
 			DeleteObject(hfont);
 
 			// draw notification body
 			SetTextColor(hdc, SC);
+
 			let (hfont, old_hfont) = util::set_font(hdc, "Segeo UI", 17, 400);
+
 			let mut rc = RECT {
 				left:NM,
 				top:NM + NIS + (NM / 2) + 17 + (NM / 2),
 				right:NW - NM,
 				bottom:NH - NM,
 			};
+
 			let mut body = util::encode_wide(&notification.body);
+
 			DrawTextW(
 				hdc,
 				body.as_mut_ptr(),
@@ -361,10 +410,13 @@ pub unsafe extern "system" fn window_proc(
 				&mut rc,
 				DT_LEFT | DT_EXTERNALLEADING | DT_WORDBREAK,
 			);
+
 			SelectObject(hdc, old_hfont);
+
 			DeleteObject(hfont);
 
 			EndPaint(hdc, &ps);
+
 			DefWindowProcW(hwnd, msg, wparam, lparam)
 		},
 
@@ -372,9 +424,11 @@ pub unsafe extern "system" fn window_proc(
 			let userdata = userdata as *mut WindowData;
 
 			let (x, y) = (GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
+
 			let hit = util::rect_contains(CLOSE_BTN_RECT_EXTRA, x as i32, y as i32);
 
 			SetCursor(LoadCursorW(std::ptr::null_mut(), if hit { IDC_HAND } else { IDC_ARROW }));
+
 			if hit != (*userdata).mouse_hovering_close_btn {
 				// only trigger redraw if the previous state is different than the new state
 				InvalidateRect(hwnd, std::ptr::null(), 0);
@@ -396,6 +450,7 @@ pub unsafe extern "system" fn window_proc(
 
 		WM_DESTROY => {
 			let userdata = userdata as *mut WindowData;
+
 			drop(Box::from_raw(userdata));
 
 			DefWindowProcW(hwnd, msg, wparam, lparam)

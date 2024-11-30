@@ -71,6 +71,7 @@ pub fn GET_Y_LPARAM(lparam:LPARAM) -> i16 {
 
 pub unsafe fn primary_monitor() -> HMONITOR {
 	let pt = POINT { x:0, y:0 };
+
 	MonitorFromPoint(pt, MONITOR_DEFAULTTOPRIMARY)
 }
 
@@ -84,14 +85,18 @@ pub unsafe fn get_monitor_info(hmonitor:HMONITOR) -> MONITORINFOEXW {
 			rcWork:RECT { bottom:0, left:0, right:0, top:0 },
 		},
 	};
+
 	monitor_info.monitorInfo.cbSize = std::mem::size_of::<MONITORINFOEXW>() as u32;
+
 	GetMonitorInfoW(hmonitor, &mut monitor_info as *mut MONITORINFOEXW as *mut MONITORINFO);
+
 	monitor_info
 }
 
 /// Returns a tuple of new and old `HFONT` handle
 pub unsafe fn set_font(hdc:HDC, name:&str, size:i32, weight:i32) -> (*mut c_void, *mut c_void) {
 	let name = format!("{}\0", name);
+
 	let hfont = CreateFontW(
 		size,
 		0,
@@ -127,15 +132,21 @@ pub(crate) const PIXEL_SIZE:usize = std::mem::size_of::<Pixel>();
 
 pub fn get_hicon_from_32bpp_rgba(rgba:Vec<u8>, width:u32, height:u32) -> w32wm::HICON {
 	let mut rgba = rgba;
+
 	let pixel_count = rgba.len() / PIXEL_SIZE;
+
 	let mut and_mask = Vec::with_capacity(pixel_count);
+
 	let pixels =
 		unsafe { std::slice::from_raw_parts_mut(rgba.as_mut_ptr() as *mut Pixel, pixel_count) };
+
 	for pixel in pixels {
 		and_mask.push(pixel.a.wrapping_sub(u8::MAX)); // invert alpha channel
 		pixel.convert_to_bgra_mut();
 	}
+
 	assert_eq!(and_mask.len(), pixel_count);
+
 	unsafe {
 		w32wm::CreateIcon(
 			std::ptr::null_mut(),

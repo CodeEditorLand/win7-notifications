@@ -11,7 +11,9 @@ use winit::{
 };
 fn main() {
 	let event_loop = EventLoop::new().unwrap();
+
 	let path = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/icon.png");
+
 	let (icon, w, h) = load_icon(Path::new(path));
 
 	event_loop
@@ -34,7 +36,9 @@ fn main() {
 
 fn load_icon(path:&Path) -> (Vec<u8>, u32, u32) {
 	let image = image::open(path).expect("Failed to open icon path").into_rgba8();
+
 	let (width, height) = image.dimensions();
+
 	let rgba = image.into_raw();
 	(rgba, width, height)
 }
