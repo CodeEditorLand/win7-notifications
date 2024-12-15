@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 use std::{
-	ffi::{c_void, OsStr},
+	ffi::{OsStr, c_void},
 	iter::once,
 	os::windows::prelude::OsStrExt,
 };

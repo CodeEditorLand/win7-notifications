@@ -6,7 +6,6 @@ use std::{ptr, sync::Mutex, thread, time::Duration};
 
 use once_cell::sync::Lazy;
 use windows_sys::{
-	w,
 	Win32::{
 		Foundation::*,
 		Graphics::Gdi::*,
@@ -14,11 +13,12 @@ use windows_sys::{
 		System::LibraryLoader::*,
 		UI::WindowsAndMessaging::*,
 	},
+	w,
 };
 
 use crate::{
 	timeout::Timeout,
-	util::{self, GetWindowLongPtrW, SetWindowLongPtrW, GET_X_LPARAM, GET_Y_LPARAM, RGB},
+	util::{self, GET_X_LPARAM, GET_Y_LPARAM, GetWindowLongPtrW, RGB, SetWindowLongPtrW},
 };
 
 /// notification width
